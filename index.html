@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping List</title>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
+</head>
+<body>
+    <h2>Shopping List</h2>
+    <ul id="shopping-list">
+        <!-- Predefined items -->
+        <li><input type="checkbox" id="mososzer"> <label for="mososzer">Mosószer</label></li>
+        <li><input type="checkbox" id="rongy"> <label for="rongy">Rongy</label></li>
+        <li><input type="checkbox" id="szivacs"> <label for="szivacs">Szivacs</label></li>
+        <li><input type="checkbox" id="teszta"> <label for="teszta">Tészta</label></li>
+        <li><input type="checkbox" id="szosz"> <label for="szosz">Szósz</label></li>
+        <li><input type="checkbox" id="liszt"> <label for="liszt">Liszt (talán)</label></li>
+    </ul>
+    <input type="text" id="item-input" placeholder="Add item">
+    <button onclick="addItem()">Add</button>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const listRef = db.ref("shoppingList");
+
+        // Function to add new item
+        function addItem() {
+            const itemInput = document.getElementById("item-input");
+            if (itemInput.value.trim() !== "") {
+                listRef.push({ name: itemInput.value, checked: false });
+                itemInput.value = "";
+            }
+        }
+
+        // Load items dynamically from Firebase
+        listRef.on("value", snapshot => {
+            const listElement = document.getElementById("shopping-list");
+            listElement.innerHTML = "";
+            snapshot.forEach(child => {
+                const item = child.val();
+                const listItem = document.createElement("li");
+                const checkbox = document.createElement("input");
+
+                checkbox.type = "checkbox";
+                checkbox.checked = item.checked;
+                checkbox.onclick = () => db.ref(`shoppingList/${child.key}`).update({ checked: !item.checked });
+
+                listItem.appendChild(checkbox);
+                listItem.appendChild(document.createTextNode(item.name));
+                listElement.appendChild(listItem);
+            });
+        });
+    </script>
+</body>
+</html>
