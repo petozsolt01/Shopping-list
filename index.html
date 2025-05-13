@@ -33,14 +33,14 @@
         const db = getDatabase(app);
         const listRef = ref(db, "shoppingList");
 
-        // Function to add new item
-        function addItem() {
+        // Make addItem function globally accessible for onclick event
+        window.addItem = function() {
             const itemInput = document.getElementById("item-input");
             if (itemInput.value.trim() !== "") {
                 push(listRef, { name: itemInput.value, checked: false });
                 itemInput.value = "";
             }
-        }
+        };
 
         // Load items dynamically from Firebase
         onValue(listRef, (snapshot) => {
