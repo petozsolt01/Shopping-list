@@ -4,91 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping List</title>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
 </head>
 <body>
     <h2>Shopping List</h2>
-    <ul id="shopping-list">
-        <!-- Predefined items -->
-        <li><input type="checkbox" id="mososzer"> <label for="mososzer">Mosószer</label></li>
-        <li><input type="checkbox" id="rongy"> <label for="rongy">Rongy</label></li>
-        <li><input type="checkbox" id="szivacs"> <label for="szivacs">Szivacs</label></li>
-        <li><input type="checkbox" id="teszta"> <label for="teszta">Tészta</label></li>
-        <li><input type="checkbox" id="szosz"> <label for="szosz">Szósz</label></li>
-        <li><input type="checkbox" id="liszt"> <label for="liszt">Liszt (talán)</label></li>
-    </ul>
+    <ul id="shopping-list"></ul>
     <input type="text" id="item-input" placeholder="Add item">
     <button onclick="addItem()">Add</button>
 
-    <script>
-        // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-        
-        // Firebase config
+    <script type="module">
+        // Import Firebase Modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+        import { getDatabase, ref, push, update, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+
+        // Firebase Config
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyB9-t8hw-J3WJ_hJ6w7JGIEipX7rOZu3YI",
+            authDomain: "shopping-list-1637a.firebaseapp.com",
+            databaseURL: "https://shopping-list-1637a-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "shopping-list-1637a",
+            storageBucket: "shopping-list-1637a.firebasestorage.app",
+            messagingSenderId: "512799740430",
+            appId: "1:512799740430:web:fc12214977a4697a19625f",
+            measurementId: "G-7X923DNR2M"
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const listRef = db.ref("shoppingList");
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const listRef = ref(db, "shoppingList");
 
         // Function to add new item
         function addItem() {
             const itemInput = document.getElementById("item-input");
             if (itemInput.value.trim() !== "") {
-                listRef.push({ name: itemInput.value, checked: false });
+                push(listRef, { name: itemInput.value, checked: false });
                 itemInput.value = "";
             }
         }
 
         // Load items dynamically from Firebase
-        listRef.on("value", snapshot => {
+        onValue(listRef, (snapshot) => {
             const listElement = document.getElementById("shopping-list");
             listElement.innerHTML = "";
-            snapshot.forEach(child => {
+            snapshot.forEach((child) => {
                 const item = child.val();
                 const listItem = document.createElement("li");
                 const checkbox = document.createElement("input");
 
                 checkbox.type = "checkbox";
                 checkbox.checked = item.checked;
-                checkbox.onclick = () => db.ref(`shoppingList/${child.key}`).update({ checked: !item.checked });
+                checkbox.onclick = () => update(ref(db, `shoppingList/${child.key}`), { checked: !item.checked });
 
                 listItem.appendChild(checkbox);
                 listItem.appendChild(document.createTextNode(item.name));
                 listElement.appendChild(listItem);
             });
         });
-        <\script>
-        <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyB9-t8hw-J3WJ_hJ6w7JGIEipX7rOZu3YI",
-    authDomain: "shopping-list-1637a.firebaseapp.com",
-    databaseURL: "https://shopping-list-1637a-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "shopping-list-1637a",
-    storageBucket: "shopping-list-1637a.firebasestorage.app",
-    messagingSenderId: "512799740430",
-    appId: "1:512799740430:web:fc12214977a4697a19625f",
-    measurementId: "G-7X923DNR2M"
-  };
     </script>
 </body>
 </html>
