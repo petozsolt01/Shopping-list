@@ -14,7 +14,7 @@
     <script type="module">
         // Import Firebase Modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-        import { getDatabase, ref, push, update, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+        import { getDatabase, ref, push, remove, update, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
         // Firebase Config
         const firebaseConfig = {
@@ -33,13 +33,18 @@
         const db = getDatabase(app);
         const listRef = ref(db, "shoppingList");
 
-        // Make addItem function globally accessible for onclick event
+        // Make addItem function globally accessible
         window.addItem = function() {
             const itemInput = document.getElementById("item-input");
             if (itemInput.value.trim() !== "") {
                 push(listRef, { name: itemInput.value, checked: false });
                 itemInput.value = "";
             }
+        };
+
+        // Make removeItem function globally accessible
+        window.removeItem = function(itemId) {
+            remove(ref(db, `shoppingList/${itemId}`));
         };
 
         // Load items dynamically from Firebase
@@ -50,13 +55,18 @@
                 const item = child.val();
                 const listItem = document.createElement("li");
                 const checkbox = document.createElement("input");
+                const removeButton = document.createElement("button");
 
                 checkbox.type = "checkbox";
                 checkbox.checked = item.checked;
                 checkbox.onclick = () => update(ref(db, `shoppingList/${child.key}`), { checked: !item.checked });
 
+                removeButton.textContent = "Remove";
+                removeButton.onclick = () => removeItem(child.key);
+
                 listItem.appendChild(checkbox);
                 listItem.appendChild(document.createTextNode(item.name));
+                listItem.appendChild(removeButton);
                 listElement.appendChild(listItem);
             });
         });
